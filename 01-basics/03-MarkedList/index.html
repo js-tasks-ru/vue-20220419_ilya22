@@ -14,17 +14,16 @@
     <div id="app" style="margin-top: 2rem">
       <div class="container">
         <div class="form-group">
-          <input type="search" />
+          <input type="search" v-model="searchValue"/>
         </div>
+        <div v-if="isLoading">Список адресов загружается. Ожидайте...</div>
+        <div v-if="errorText">{{ errorText }}</div>
         <ul>
-          <li>Email</li>
-          <li class="marked">Email</li>
-          <li>...</li>
-          <li>Email</li>
+          <li v-for="email in searchedEmails" :class="{ marked: email.marked }"> {{ email.value }}</li>
         </ul>
       </div>
     </div>
 
-    <script type="module" src="script.js"></script>
+    <script type="module" src="./script.js"></script>
   </body>
 </html>

@@ -21,6 +21,22 @@
         padding: 0.5rem;
       }
 
+      .sum::after {
+        content: "➕";
+      }
+
+      .subtract::after {
+        content: "➖";
+      }
+
+      .multiply::after {
+        content: "✖";
+      }
+
+      .divide::after {
+        content: "➗";
+      }
+
       input[type='number'] {
         width: 48px;
       }
@@ -31,26 +47,27 @@
     <div id="app" class="container">
       <div class="row">
         <div class="col">
-          <input type="number" />
+          <input type="number" v-model="operandA"/>
         </div>
 
         <div class="col" style="display: flex; flex-direction: column; font-family: emoji">
-          <label><input type="radio" name="operator" value="sum" /> ➕</label>
-          <label><input type="radio" name="operator" value="subtract" /> ➖</label>
-          <label><input type="radio" name="operator" value="multiply" /> ✖</label>
-          <label><input type="radio" name="operator" value="divide" /> ➗</label>
+          <template v-for="(_, operatorName) in operators">
+            <label :class="operatorName">
+              <input type="radio" v-model="operator" :value="operatorName"/>
+            </label>
+          </template>
         </div>
 
         <div class="col">
-          <input type="number" />
+          <input type="number" v-model="operandB"/>
         </div>
 
         <div class="col">=</div>
 
-        <output class="col">0</output>
+        <output class="col">{{ result }}</output>
       </div>
     </div>
 
-    <script type="module" src="script.js"></script>
+    <script type="module" src="./script.js"></script>
   </body>
 </html>

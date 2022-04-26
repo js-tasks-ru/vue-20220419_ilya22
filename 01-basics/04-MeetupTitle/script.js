@@ -19,7 +19,6 @@ const RootComponent = defineComponent({
   data() {
     return {
       isLoading: false,
-      meetups: [1, 2, 3, 4, 5],
       selectedMeetupId: null,
       meetup: null,
     };

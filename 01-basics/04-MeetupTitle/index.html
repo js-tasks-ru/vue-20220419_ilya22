@@ -8,9 +8,7 @@
     <div id="app">
 
       <div>
-        <template v-for="id in meetups">
-          <label><input type="radio" v-model="selectedMeetupId" :value="id" /> {{ id }}</label>
-        </template>
+        <label v-for="id in 5"><input type="radio" v-model="selectedMeetupId" :value="id" /> {{ id }}</label>
 
         <hr />
 

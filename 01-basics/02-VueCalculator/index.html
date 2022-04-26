@@ -51,11 +51,9 @@
         </div>
 
         <div class="col" style="display: flex; flex-direction: column; font-family: emoji">
-          <template v-for="(_, operatorName) in operators">
-            <label :class="operatorName">
+          <label v-for="(_, operatorName) in operators" :class="operatorName">
               <input type="radio" v-model="operator" :value="operatorName"/>
-            </label>
-          </template>
+          </label>
         </div>
 
         <div class="col">

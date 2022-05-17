@@ -1,24 +1,62 @@
 <template>
   <div class="toasts">
-    <div class="toast toast_success">
-      <ui-icon class="toast__icon" icon="check-circle" />
-      <span>Success Toast Example</span>
-    </div>
-
-    <div class="toast toast_error">
-      <ui-icon class="toast__icon" icon="alert-circle" />
-      <span>Error Toast Example</span>
+    <div v-for="toast in toasts" :class="`toast toast_${toast.type}`">
+      <ui-icon class="toast__icon" :icon="$options.ICONS[toast.type]" />
+      <span>{{ toast.message }}</span>
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import UiIcon from './UiIcon';
+
+type ToastType = 'error' | 'success';
+type Toast = { type: ToastType; message: string; timeoutId?: unknown };
+
+const ICONS = {
+  success: 'check-circle',
+  error: 'alert-circle',
+} as const;
 
 export default {
   name: 'TheToaster',
 
   components: { UiIcon },
+
+  ICONS,
+
+  REMOVE_INTERVAL: 5000,
+
+  data() {
+    return {
+      toasts: new Array<Toast>(),
+    };
+  },
+
+  methods: {
+    error(message: string) {
+      const toast: Toast = {
+        type: 'error',
+        message,
+      };
+      this.pushToast(toast);
+    },
+
+    success(message: string) {
+      const toast: Toast = {
+        type: 'success',
+        message,
+      };
+      this.pushToast(toast);
+    },
+
+    pushToast(toast: Toast) {
+      this.toasts.push(toast);
+      toast.timeoutId = setTimeout(() => {
+        this.toasts.shift();
+      }, this.$options.REMOVE_INTERVAL);
+    },
+  },
 };
 </script>
 

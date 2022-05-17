@@ -1,14 +1,30 @@
 <template>
-  <div class="form-group">
+  <div class="form-group" :class="extraClasses">
     <!-- form-group_inline -->
-    <label class="form-group__label">label text</label>
-    <!-- CONTENT -->
+    <label v-if="label" class="form-group__label">{{ label }}</label>
+    <slot />
   </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   name: 'UiFormGroup',
+  props: {
+    inline: {
+      type: Boolean,
+      default: false,
+    },
+    label: String,
+  },
+  computed: {
+    extraClasses() {
+      const result = [];
+      if (this.inline) {
+        result.push('form-group_inline');
+      }
+      return result;
+    },
+  },
 };
 </script>
 

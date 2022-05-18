@@ -1,18 +1,31 @@
 <template>
-  <div class="dropdown dropdown_opened">
-    <button type="button" class="dropdown__toggle dropdown__toggle_icon">
-      <ui-icon icon="tv" class="dropdown__icon" />
-      <span>Title</span>
+  <div class="dropdown" :class="{ dropdown_opened: toggled }">
+    <button
+      type="button"
+      class="dropdown__toggle dropdown"
+      :class="{ dropdown__toggle_icon: hasIcons }"
+      @click="onToggle"
+    >
+      <template v-if="value">
+        <ui-icon v-if="value.icon" :icon="value.icon" class="dropdown__icon" />
+        <span>{{ value.text }}</span>
+      </template>
+      <span v-else>{{ title }}</span>
     </button>
 
-    <div class="dropdown__menu" role="listbox">
-      <button class="dropdown__item dropdown__item_icon" role="option" type="button">
-        <ui-icon icon="tv" class="dropdown__icon" />
-        Option 1
-      </button>
-      <button class="dropdown__item dropdown__item_icon" role="option" type="button">
-        <ui-icon icon="tv" class="dropdown__icon" />
-        Option 2
+    <div v-show="toggled" class="dropdown__menu" role="listbox">
+      <button
+        v-for="option in options"
+        :key="option.value"
+        class="dropdown__item dropdown"
+        :class="{ dropdown__item_icon: hasIcons }"
+        role="option"
+        type="button"
+        :value="option.value"
+        @click="onSelect"
+      >
+        <ui-icon v-if="option.icon" :icon="option.icon" class="dropdown__icon" />
+        {{ option.text }}
       </button>
     </div>
   </div>
@@ -25,6 +38,53 @@ export default {
   name: 'UiDropdown',
 
   components: { UiIcon },
+
+  props: {
+    options: {
+      type: Array,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    modelValue: [Object, String],
+  },
+
+  emits: ['update:modelValue'],
+
+  data() {
+    return {
+      toggled: false,
+    };
+  },
+
+  computed: {
+    hasIcons() {
+      return this.options.some(({ icon }) => !!icon);
+    },
+    value() {
+      let option;
+      if (this.modelValue) {
+        const searchValue = typeof this.modelValue === 'string' ? this.modelValue : this.modelValue.value;
+        option = this.options.find(({ value }) => value === searchValue);
+      }
+      return option;
+    },
+  },
+
+  methods: {
+    onToggle() {
+      this.toggled = !this.toggled;
+    },
+    onSelect(event) {
+      const {
+        target: { value },
+      } = event;
+      this.$emit('update:modelValue', value);
+      this.toggled = false;
+    },
+  },
 };
 </script>
 

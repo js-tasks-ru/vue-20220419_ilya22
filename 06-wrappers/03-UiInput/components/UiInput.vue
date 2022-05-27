@@ -1,21 +1,76 @@
 <template>
-  <div class="input-group input-group_icon input-group_icon-left input-group_icon-right">
-    <div class="input-group__icon">
-      <img class="icon" alt="icon" />
+  <div
+    class="input-group"
+    :ref="ref"
+    :class="{
+      'input-group_icon': 'left-icon' in $slots || 'right-icon' in $slots,
+      'input-group_icon-left': 'left-icon' in $slots,
+      'input-group_icon-right': 'right-icon' in $slots,
+    }"
+  >
+    <div v-if="'left-icon' in $slots" class="input-group__icon">
+      <slot name="left-icon" />
     </div>
 
-    <input ref="input" class="form-control form-control_rounded form-control_sm" />
+    <component
+      ref="input"
+      class="form-control"
+      :is="multiline ? 'textarea' : 'input'"
+      :class="{ 'form-control_rounded': rounded, 'form-control_sm': small }"
+      :value="modelValue"
+      v-bind="$attrs"
+      @[event]="$emit('update:modelValue', $event.target.value)"
+    ></component>
 
-    <div class="input-group__icon">
-      <img class="icon" alt="icon" />
+    <div v-if="'right-icon' in $slots" class="input-group__icon">
+      <slot name="right-icon" />
     </div>
   </div>
 </template>
 
-<script>
-export default {
+<script type="ts">
+import { defineComponent } from "@vue/runtime-core";
+
+export default defineComponent({
   name: 'UiInput',
-};
+  inheritAttrs: false,
+
+  props: {
+    small: {
+      type: Boolean,
+      default: false,
+    },
+    rounded: {
+      type: Boolean,
+      default: false,
+    },
+    multiline: {
+      type: Boolean,
+      default: false,
+    },
+    modelValue: String,
+    modelModifiers: {
+      default: {
+        lazy: false,
+      }
+    },
+    ref: String,
+  },
+
+  emits: ['update:modelValue'],
+
+  computed: {
+    event() {
+      return this.modelModifiers.lazy ? 'change' : 'input';
+    },
+  },
+
+  methods: {
+    focus () {
+      this.$refs.input.focus();
+    },
+  },
+});
 </script>
 
 <style scoped>

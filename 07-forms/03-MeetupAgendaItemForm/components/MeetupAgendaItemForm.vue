@@ -1,42 +1,40 @@
 <template>
   <fieldset class="agenda-item-form">
-    <button type="button" class="agenda-item-form__remove-button">
+    <button type="button" class="agenda-item-form__remove-button" @click="$emit('remove', internalValue.id)">
       <ui-icon icon="trash" />
     </button>
 
     <ui-form-group>
-      <ui-dropdown title="Тип" :options="$options.agendaItemTypeOptions" name="type" />
+      <ui-dropdown title="Тип" :options="$options.agendaItemTypeOptions" name="type" v-model="internalValue.type" />
     </ui-form-group>
 
     <div class="agenda-item-form__row">
       <div class="agenda-item-form__col">
         <ui-form-group label="Начало">
-          <ui-input type="time" placeholder="00:00" name="startsAt" />
+          <ui-input type="time" placeholder="00:00" name="startsAt" v-model="internalValue.startsAt" />
         </ui-form-group>
       </div>
       <div class="agenda-item-form__col">
         <ui-form-group label="Окончание">
-          <ui-input type="time" placeholder="00:00" name="endsAt" />
+          <ui-input type="time" placeholder="00:00" name="endsAt" v-model="internalValue.endsAt" />
         </ui-form-group>
       </div>
     </div>
 
-    <ui-form-group label="Тема">
-      <ui-input name="title" />
-    </ui-form-group>
-    <ui-form-group label="Докладчик">
-      <ui-input name="speaker" />
-    </ui-form-group>
-    <ui-form-group label="Описание">
-      <ui-input multiline name="description" />
-    </ui-form-group>
-    <ui-form-group label="Язык">
-      <ui-dropdown title="Язык" :options="$options.talkLanguageOptions" name="language" />
+    <ui-form-group v-for="field in extraFields" :key="field.name" :label="field.label">
+      <component
+        :is="field.component"
+        :name="field.name"
+        :model-value="internalValue[field.name]"
+        @update:model-value="internalValue[field.name] = $event"
+        v-bind="field.attrs"
+      ></component>
     </ui-form-group>
   </fieldset>
 </template>
 
 <script>
+import moment from 'moment';
 import UiIcon from './UiIcon';
 import UiFormGroup from './UiFormGroup';
 import UiInput from './UiInput';
@@ -88,6 +86,99 @@ export default {
     agendaItem: {
       type: Object,
       required: true,
+    },
+  },
+
+  emits: ['update:agendaItem', 'remove'],
+
+  data() {
+    return {
+      internalValue: { ...this.agendaItem },
+    };
+  },
+
+  watch: {
+    internalValue: {
+      deep: true,
+      handler(value) {
+        this.$emit('update:agendaItem', { ...value });
+      },
+    },
+    'internalValue.startsAt'(newValue, oldValue) {
+      const format = 'HH:mm';
+      const startsAtMoment = moment(oldValue, format);
+      const endsAtMoment = moment(this.internalValue.endsAt, format);
+      const newEndsAtMoment = moment(newValue, format).add(endsAtMoment.diff(startsAtMoment), 'ms');
+      this.internalValue.endsAt = newEndsAtMoment.format(format);
+    },
+  },
+
+  computed: {
+    extraFields() {
+      const { type } = this.internalValue;
+      if (type === 'talk') {
+        return [
+          {
+            label: 'Тема',
+            name: 'title',
+            component: 'ui-input',
+            model: this.internalValue.title,
+          },
+          {
+            label: 'Докладчик',
+            name: 'speaker',
+            component: 'ui-input',
+            model: this.internalValue.speaker,
+          },
+          {
+            label: 'Описание',
+            name: 'description',
+            component: 'ui-input',
+            model: this.internalValue.description,
+            attrs: {
+              multiline: true,
+            },
+          },
+          {
+            label: 'Язык',
+            name: 'language',
+            component: 'ui-dropdown',
+            model: this.internalValue.language,
+            attrs: {
+              options: this.$options.talkLanguageOptions,
+            },
+          },
+        ];
+      }
+
+      if (type === 'other') {
+        return [
+          {
+            label: 'Заголовок',
+            name: 'title',
+            component: 'ui-input',
+            model: this.internalValue.title,
+          },
+          {
+            label: 'Описание',
+            name: 'description',
+            component: 'ui-input',
+            model: this.internalValue.description,
+            attrs: {
+              multiline: true,
+            },
+          },
+        ];
+      }
+
+      return [
+        {
+          label: 'Нестандартный текст (необязательно)',
+          name: 'title',
+          component: 'ui-input',
+          model: this.internalValue.title,
+        },
+      ];
     },
   },
 };
